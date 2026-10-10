@@ -1,0 +1,19 @@
+//protoc --go_out=./pkg --go-grpc_out=./pkg --go-grpc_opt=paths=source_relative --go_opt=paths=source_relative *.proto
+syntax = "proto3";
+
+package pkg;
+
+option go_package = "MyMod/pkg;pkg";
+
+message GetProductRequest {
+    uint32 sku = 1;
+}
+
+message GetProductResponse {
+    string name = 1;
+    int32 price = 2;
+}
+
+service Product {
+    rpc GetProduct (GetProductRequest) returns (GetProductResponse);
+}
