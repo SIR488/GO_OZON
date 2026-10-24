@@ -17,3 +17,8 @@ run-cart:
 .PHONY:  run-all
 run-all:
 	@$(MAKE) -j2 run-product run-cart
+
+.PHONY:  test-race
+test-race:
+	go test ./...
+
