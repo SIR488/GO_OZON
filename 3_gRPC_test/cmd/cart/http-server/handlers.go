@@ -39,8 +39,8 @@ func (ui *UI) PostSKU(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if skuId < 0 {
-		http.Error(w, "sku_id must be not negative", http.StatusBadRequest)
+	if skuId <= 0 {
+		http.Error(w, "sku_id must positive", http.StatusBadRequest)
 		return
 	}
 	var body struct {
@@ -56,7 +56,7 @@ func (ui *UI) PostSKU(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	case errors.Is(err, domain.ErrPreconditionFailed):
 		http.Error(w, "sku not found", http.StatusPreconditionFailed)
-	case errors.Is(err, domain.ErrInvalidArgument): //кейс не сработает, но добавил
+	case errors.Is(err, domain.ErrInvalidArgument):
 		http.Error(w, "invalid argument", http.StatusBadRequest)
 	default:
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -75,8 +75,12 @@ func (ui *UI) GetCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cart, err := ui.service.GetCart(uint32(userId))
-	if err != nil {
+	switch {
+	case errors.Is(err, domain.ErrNotFound):
 		http.Error(w, "user not found", http.StatusNotFound)
+		return
+	case errors.Is(err, domain.ErrPreconditionFailed):
+		http.Error(w, "items issue", http.StatusPreconditionFailed)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
